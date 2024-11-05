@@ -27,12 +27,18 @@ class ProjectController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required',
             'image' => 'nullable|string',
-            'url' => 'nullable|url'
+            'url' => 'nullable|url',
+            'type_id' => 'nullable|exists:types,id',
+            'technologies' => 'nullable|array',
+            'technologies.*' => 'exists:technologies,id'
         ]);
-
-        Project::create($data);
+    
+        $project = Project::create($data);
+        $project->technologies()->sync($request->input('technologies', []));
+    
         return redirect()->route('backoffice.projects.index');
     }
+    
     
     public function edit(Project $project)
     {
@@ -42,16 +48,22 @@ class ProjectController extends Controller
     
     public function update(Request $request, Project $project)
     {
-        $data = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required',
-            'image' => 'nullable|string',
-            'url' => 'nullable|url'
-        ]);
+    $data = $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'required',
+        'image' => 'nullable|string',
+        'url' => 'nullable|url',
+        'type_id' => 'nullable|exists:types,id',
+        'technologies' => 'nullable|array',
+        'technologies.*' => 'exists:technologies,id'
+    ]);
 
-        $project->update($data);
-        return redirect()->route('backoffice.projects.index');
+    $project->update($data);
+    $project->technologies()->sync($request->input('technologies', []));
+
+    return redirect()->route('backoffice.projects.index');
     }
+
 
     public function destroy(Project $project)
     {

@@ -24,3 +24,4 @@ Route::prefix('admin')
     
         require __DIR__.'/auth.php';
     });
+
