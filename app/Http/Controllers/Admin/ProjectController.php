@@ -26,19 +26,17 @@ class ProjectController extends Controller
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required',
-            'image' => 'nullable|string',
-            'url' => 'nullable|url',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'type_id' => 'nullable|exists:types,id',
-            'technologies' => 'nullable|array',
-            'technologies.*' => 'exists:technologies,id'
         ]);
     
-        $project = Project::create($data);
-        $project->technologies()->sync($request->input('technologies', []));
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('images', 'public');
+        }
     
+        Project::create($data);
         return redirect()->route('backoffice.projects.index');
     }
-    
     
     public function edit(Project $project)
     {
@@ -51,19 +49,17 @@ class ProjectController extends Controller
     $data = $request->validate([
         'title' => 'required|string|max:255',
         'description' => 'required',
-        'image' => 'nullable|string',
-        'url' => 'nullable|url',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         'type_id' => 'nullable|exists:types,id',
-        'technologies' => 'nullable|array',
-        'technologies.*' => 'exists:technologies,id'
     ]);
 
-    $project->update($data);
-    $project->technologies()->sync($request->input('technologies', []));
-
-    return redirect()->route('backoffice.projects.index');
+    if ($request->hasFile('image')) {
+        $data['image'] = $request->file('image')->store('images', 'public');
     }
 
+    $project->update($data);
+    return redirect()->route('backoffice.projects.index');
+    }
 
     public function destroy(Project $project)
     {
